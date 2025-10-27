@@ -9,6 +9,8 @@ tags: [hpc, health-sciences, personalized-medicine, drug-discovery]
 
 Welcome to the first post on our blog! Today, we'll delve into the exciting world of High-Performance Computing (HPC) and its transformative impact on health sciences.
 
+<!-- truncate -->
+
 ### What is HPC?
 
 Imagine a computer system with immense processing power, capable of crunching through massive datasets in record time. That's the essence of HPC. It harnesses the combined power of numerous processors working in tandem, enabling researchers and clinicians to tackle complex problems in healthcare and life sciences.

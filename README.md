@@ -30,29 +30,29 @@ To contribute or run the MedCMU HPC documentation locally, follow these steps:
 ### Prerequisites
 
 - Node.js >=16.6.0
-- Yarn (recommended)
+- NPM
 
 ### Installation Steps
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/medcmu-hpc.git
+   git clone https://github.com/evolu-tion/medcmu-hpc.git
    cd medcmu-hpc
    ```
 
 2. Install dependencies:
    ```bash
-   yarn install
+   npm install
    ```
 3. Run the local development server:
    ```bash
-   yarn start
+   npm run start
    ```
 4. Open your browser and visit `http://localhost:3000` to view the documentation.
 
 ### Build the Site
 To build a static version of the site for deployment, run:
 ```bash
-yarn build
+npm run build
 ```
 

@@ -22,17 +22,16 @@ const config: Config = {
   projectName: 'hpc', // Usually your repo name.
 
   onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'warn',
 
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
   // may want to replace "en" with "zh-Hans".
-  i18n: {
-    defaultLocale: 'en',
-    locales: ['en'],
-  },
+
   markdown: {
     mermaid: true,
+    hooks: {
+      onBrokenMarkdownLinks: 'warn'
+    }
   },
   themes: ['@docusaurus/theme-mermaid'],
 
@@ -141,8 +140,8 @@ const config: Config = {
               href: '/docs/Documentation/environment-modules',
             },
             {
-              label: 'Mamba Environment',
-              href: '/docs/Documentation/conda-mamba',
+              label: 'Virtual Environment',
+              href: '/docs/Documentation/virtaul-env',
             },
             {
               label: 'Use Virtual Terminal',
