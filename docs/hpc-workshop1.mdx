@@ -1,0 +1,512 @@
+---
+sidebar_position: 3
+title: Get Started HPC Workshop
+---
+import EmailAccessPage from '@site/src/components/GetCred'; 
+
+Get Started Healthcare Research with High-Performance Computing
+
+## 1. Introduction & MedCMU HPC Overview
+### 1.1 Hands-on Objective
+This workshop introduces researchers to MedCMU-HPC, covering key concepts, system access, job submission, and data management.
+
+### 1.2 Workshop Materials
+- **Workshop website**: [cmu.to/hpc-workshop-docs](https://cmu.to/hpc-workshop-docs)
+- **Presentation Slide**: [Link](https://o365cmu-my.sharepoint.com/:p:/g/personal/nattawet_sri_cmu_ac_th/EUE-13mY6XFDsU2SBqmy7boB2W3dwJQBpjRxOm9aMuLS9w?e=PFcl3e)
+- **Cheat Sheet**: [cmu.to/medcmu-hpc-cheatsheet](https://cmu.to/medcmu-hpc-cheatsheet)
+- **Software**: Terminal, Web Browser, [FileZilla Client](https://filezilla-project.org/download.php?type=client)
+
+### 1.3 Overview HPC Resource
+![OnDemand Login](/img/workshop/raptor-overview.png)
+
+#### Cluster Partitions
+
+  The cluster is organized into partitions, which are groups of nodes used for specific purposes. Raptor includes the following partitions:
+
+  | Partition   | Total Cores | Cores per Node | Memory per Node | GPU per Node    | Max Time per Job | Max Cores per User  |
+  |-------------|-------------|----------------|-----------------|-----------------|------------------|---------------------|
+  | **short**   |             |  1             | 8 GB            | -               | 8 hours          | 2                   |
+  | **compute** | 384         | 94             | 1,280 GB        | -               | -                | 188                 |
+  | **gpu**     | 188         | 94             | 384 GB          | 2 x Nvidia H100 | -                | 188                 |
+
+  **Partition Usage Recommendations**
+    - The "*short*" partition is designed for shorter batch jobs, interactive jobs, array jobs, and jobs that benefit from multiple threads. This comprises all nodes on Raptor. Note that the default memory setting is 4 GB per core.
+    - The "*compute*" partition is dedicated to larger multi-node jobs and long-running jobs.
+    - The "*gpu*" partition is designed for GPU-intensive jobs.
+
+### 1.4 How to Register for MedCMU-HPC
+
+1. Visit the registration portal: [cmu.to/medcmu-hpc](https://cmu.to/medcmu-hpc)
+2. Choose the appropriate form:
+   - [**Project Registration**](https://cmu.to/medcmu-hpc-proj-register): For PIs or graduate students.
+   - [**User Registration**](https://cmu.to/medcmu-hpc-user-register): For individual user accounts.
+3. Submit required documents and wait for approval.
+
+
+
+### 1.5 HPC Quota Allocation and Usage
+![Quota](/img/workshop/quota.png)
+
+1. Research projects
+    - **Project Home Directory**: 1 TB per project (+ 1 TB flash storage)
+        - `/project/<ProjecID_ShortName>`
+        - `/scratch/<ProjecID_ShortName>`, the `/scratch` directory will be automatically cleared 30 days after its creation. Please ensure that you move your data out once processing is completed.
+    - **Computing Service Hours (SHr)**: 198 SHr per project
+2. HPC Users
+    - **User Home Directory**: 100 GB per user
+        - `/home/<username>`, your user account and user home directory will be deleted if you do not active for a year. with notify 60, 14, 1 days before removed.
+
+
+### 1.6 Approved HPC Allocation Email Sample
+- PI and collaborators will recieved "Approved Project Allocation and Inform Project Directory on MedCMU HPC" email after approved.
+- HPC user will recived "MedCMU-HPC Access Detail (Raptor Cluster)" email after account created.
+
+---
+
+## 2. OnDemand HPC Portal
+
+### Launching Interactive Apps on OnDemand
+
+Launching Interactive Apps on OnDemand
+1. Opening browser and go to [https://raptor.med.cmu.ac.th:9000](https://raptor.med.cmu.ac.th:9000)
+2. Login to OnDemand
+3. Opening Interactive in OnDemand, navigate to “Interactive Apps”, select interactive apps.
+4. Configuring resources for Interactive Apps
+    - Project account
+    - Partition (compute/ gpu/ short)
+    - Number of CPU core per task
+    - Number of GPU card
+    - Time limit of the job
+    
+    Then “Launch”
+5. Connecting to interactive apps and working with those application
+6. Closing interactive session if your done interacive
+
+---
+
+## 3. Submit Jobs with SLURM Command Line
+### 3.1 How to Connect to the Login Node via SSH
+![ssh](/img/workshop/ssh-login.png)
+1. Go to Terminal/Windows Terminal
+2. Login with ssh 
+    ```bash
+    ssh username@raptor.med.cmu.ac.th
+    ```
+    - Enter your initial password
+    - The system force you reset password at first login. They will said your password is expired. Please enter **your initial password** again. follow **new password** two times.
+
+    ![SSH componenet](/img/workshop/ssh-explain.png)
+
+#### Alternative way to connecting to a server via SSH in VSCode
+1. Open [VS Code](https://code.visualstudio.com/download)
+2. Install "[SSH FS](https://marketplace.visualstudio.com/items?itemName=Kelvin.vscode-sshfs)" extension
+3. Adding HPC Configure to SSH FS
+    - Name: raptor
+    - Host: 10.128.1.10
+    - User: username
+    - Password: prompt
+    - Root: /home/username or /project/proj_id
+4. Add as working space folder
+    ![SSH FS](/img/workshop/ssh-fs.png)
+
+### 3.2 Tracking Remaining Project Resources
+
+**Check remaining compute time**
+```bash
+sbalance
+```
+Output example:
+``` 
+Account    Descr   Remaining(%)  Allocation(SHr)        Used(SHr)   Remaining(SHr)
+----------------------------------------------------------------------------------
+a25000X    ProjA       100.00%           100.00             0.00           100.00
+a2500XX    ProjB        99.98%           100.00             0.02            99.98
+o250XXX    ProjC        99.00%           100.00             1.00            99.00
+
+```
+Service Node Hour (SHr) calculation
+$$
+SHr = \frac{Cores \times Hours}{Total\ Cores}
+$$
+
+| User | CPU (core) | Running Time (h) | SHr                               |
+|------|------------|------------------|-----------------------------------|
+| B1   | 1          | 2                | $\frac{1 \times 2}{94} = 0.02$      |
+| C3   | 94         | 1                | $\frac{94 \times 1}{94} = 1.00$    |
+
+
+**Checking remaining storage data**
+```bash
+myquota
+```
+Example of output:
+```
+              Path  Remaining(%)  Allocation(GB)  Used(GB)  Remaining(GB)
+  /project/o25000X            57            5000      2158           2842
+  /scratch/o25000X            69            1000       313            687
+     /project/demo           100            1000         0           1000
+     /scratch/demo            94            1000        58            942
+    /home/username            43             100        57             43
+
+```
+
+### 3.3 How to Load Pre-installed Packages using Environment Modules
+
+#### Key Commands for Environment Modules
+| Command |  Short Command| Action |
+| --- | --- | --- |
+| `module avail` | `ml av` | See available packages and versions |
+| `module load <module name>`  | `ml <module name>` | Load package module and version |
+| `module list` | `ml` | Lists all currently loaded modules |
+| `module unload <module>` | ml `-<module_name>` | Unloads a specific module |
+| `module purge` | ml purge | Unloads all loaded modules |
+
+
+#### 🔎 Listing Available Modules
+To see all available software and their versions, run:
+```bash
+module avail
+```
+Example of output:
+```
+
+------ /apps/.modulefiles ---------------------------------------------------------------------------------------------------------------------------------------------------------
+   apptainer/1.3.5    bwa-mem2/2.2.1         fastqc/0.12.1        kallisto/0.51.1      plink/2.0.0                                      ruse/2.0
+   arriba/2.4.0       bwa/0.7.18             fuseq_wes/1.0.0      mamba/1.5.8          python/3.12.7                                    samtools/1.21
+   bamtools/2.5.2     cancerlocator/1.0.1    gatk/4.6.1.0         minimap/2.28         qualimap/2.3                                     star-fusion/1.13.0
+   bcftools/1.21      cufflinks/2.2.1        gurobi/12.0.0        multiqc/1.25.1       r/4.4.2-RStudio_Server-VSCode-Jupyter-SIF        star/2.7.11b
+   bedtools/2.31.1    cutadapt/4.9           hisat/2.2.1          ncbi-blast/2.16.0    r/4.4.2-VIM-SIF                           (D)    trimgalore/0.6.10
+   bowtie2/2.5.4      fastp/0.23.4           java-jdk/21.0.3+9    nextflow/24.10.0     rsem/1.3.3                                       trimmomatic/0.39
+
+  Where:
+   Aliases:  Aliases exist: foo/1.2.3 (1.2) means that "module load foo/1.2" will load foo/1.2.3
+   D:        Default Module
+```
+
+#### 📥 Loading a Module
+To use a software package, load its module:
+```bash
+module load python/3.12.7
+```
+
+#### 📜 Checking Loaded Modules
+To see which modules you currently have loaded:
+```bash
+module list
+```
+
+#### ❌ Unloading a Module
+If you want to remove a specific module:
+```bash
+module unload python/3.12.7
+```
+#### 🔄 Resetting Your Environment
+To remove all loaded modules and start fresh:
+```bash
+module purge
+```
+
+By using **Environment Modules**, you can easily manage different software versions without conflicts, making your HPC experience smoother!
+
+### 3.4 Transferring Files Using FileZilla Client
+
+Download FileZilla Client: [Link](https://filezilla-project.org/download.php?type=client)
+![FileZilla](/img/workshop/filezilla.png)
+
+Login via 
+- **Hostname**: raptor.med.cmu.ac.th
+- **Username**: your-username
+- **Password**: your-password
+- **Port**: 22
+
+### 3.5 Data Uplad Policy
+1. Users **must not store any individually identifiable** such as HN, names, addresses, birthdate, or any sensitive medical history on the HPC system.
+2. Any data containing personal information must be de-identified or sample coded before being stored on the HPC system.
+
+![Anonymization technique](/img/workshop/anonymization.png)
+
+
+### 3.6 How to Submit Jobs Using SLURM Interactive Mode
+Accessing shell on compute node from login node
+```bash
+srun --pty bash
+```
+Accessing shell on compute node with specific partition, limit time, cores, and memory
+```bash
+srun -p short -t 1:00:00 -c 1 --mem=4G --pty bash
+```
+Time limit (wall time) format: d-hh:mm:ss
+
+Running python script on compute node
+```bash
+srun -p short -t 1:00:00 -c 1 --mem=4G --pty \
+   python3 /common/demo/mean_score.py 1 2 3 4 5
+```
+
+### 3.7 Submit Jobs with SLURM
+![SLURM submit process](/img/workshop/slurm-submit.png)
+
+1. Log in to the cluster via *secure shell* (**`ssh`**)
+2. Run a command to tell SLURM that you want to run a job. You need tell it 
+    - how many **cores** you want
+    - how much **memory** you need
+    - how many **hours/days** you need to finish
+    - **program** you want to use
+3. SLURM puts your job in a **queue** with all other jobs that user have submitted
+4. When it’s your turn, and resources are free for your job. SLURM will **assign resources to the job on the nodes**, then start you application there.
+5. One your application is done, SLURM will stop the job, make sure any output is saved. Then assign the newly free resource to another job waiting in line.
+
+### 3.8 Creating and running your first SLURM script
+1. Create sbatch file
+    ```bash title="1_MeanScore_script.sh"
+    #!/bin/bash
+
+    #SBATCH --job-name=MeanScore
+    #SBATCH --account=demo
+    #SBATCH --partition=short
+    #SBATCH --time=1:00:00
+    #SBATCH --cpus-per-task=1
+    #SBATCH --mem=4G
+    #SBATCH --output=1_MeanScore_%j.out
+    #SBATCH --error=1_MeanScore_%j.err
+    #SBATCH --mail-user=email@cmu.ac.th
+    #SBATCH --mail-type=END
+
+    module load python/3.12.7
+    python3 /common/demo/mean_score.py 1 2 3 4 5
+    ```
+2. Run sbatch via `sbatch 1_MeanScore_script.sh` on login node
+
+### 3.9 Monitoring Job Status
+
+| SLURM Command               | Description                                               |
+|-----------------------------|-----------------------------------------------------------|
+| `squeue`                    | Show job queue of waiting and running jobs                |
+| `squeue –u $USER`           | Display jobs for the current user                         |
+| `watch squeue –u $USER`     | Refresh the job queue every 2 seconds for the current user|
+| `tail MeanScore_JobID.out`  | Monitor the output log file for job with JobID            |
+| `tail MeanScore_JobID.err`  | Monitor the error log file for job with JobID             |
+| `scancel JobID`             | Cancel the job with specified JobID                       |
+| `sacct`                     | Monitor finished jobs                                     |
+| `seff JobID`                | Check the efficiency of a running job                     |
+| `sinfo`                     | View the status of all compute nodes                      |
+
+**Example of `squeue`**:
+    ```text title="> squeue"
+                JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
+                8805   compute BileFAST songphon  R    3:33:44      1 raptor-m-001
+                8807     short    sleep nattawet  R       0:07      1 raptor-g-001
+    ```
+**Example of `sacct`**:
+    ```text title="> sacct"
+    JobID           JobName  Partition    Account  AllocCPUS      State ExitCode
+    ------------ ---------- ---------- ---------- ---------- ---------- --------
+    8806              sleep      short       demo          1 CANCELLED+      0:0
+    8806.extern      extern                  demo          1  COMPLETED      0:0
+    8806.0            sleep                  demo          1 CANCELLED+      0:2
+    8807              sleep      short       demo          1    RUNNING      0:0
+    8807.extern      extern                  demo          1    RUNNING      0:0
+    8807.0            sleep                  demo          1    RUNNING      0:0
+    ```
+
+**Example of `seff <JobID>`**:
+    ```text title="> seff 6000"
+    seff 6000
+    Job ID: 6000
+    Array Job ID: 5975_25
+    Cluster: raptor
+    User/Group: user/group
+    State: FAILED (exit code 1)
+    Nodes: 1
+    Cores per node: 2
+    CPU Utilized: 00:04:25
+    CPU Efficiency: 50.19% of 00:08:48 core-walltime
+    Job Wall-clock time: 00:04:24
+    Memory Utilized: 230.55 MB
+    Memory Efficiency: 1.41% of 16.00 GB
+```
+Check overall node status 
+    ```text title="> sinfo"
+    PARTITION AVAIL  TIMELIMIT  NODES  STATE NODELIST
+    short*       up    8:00:00      1    mix raptor-m-001
+    short*       up    8:00:00      5   idle raptor-g-[001-002],raptor-m-[002-004]
+    compute      up   infinite      1    mix raptor-m-001
+    compute      up   infinite      3   idle raptor-m-[002-004]
+    gpu          up   infinite      2   idle raptor-g-[001-002]
+    ```
+    **Node Status**: 
+    - **idle**: The node is available for job scheduling
+    - **allocated**: The node is currently running one or more jobs
+    - **mix**: The node is running jobs but has some free resources available
+    - **drain**: The node is unavailable for new jobs due to maintenance or an administrator request.
+
+---
+## 4. Virtual Environment in HPC
+### 4.1 Virtual environments with conda/mamba
+**A virtual environment**: isolated installation of Python and its libraries
+![Virtual Env](/img/workshop/mamba.png)
+
+### 4.2 Setting Up Micromamba Environment
+0. Initializing Micromamba (First-Time Setup Only)
+
+    0. To use Micromamba, initialize your shell and configure it:
+    ```bash
+    module load mamba/1.5.8
+    micromamba shell init -s bash -r ~/micromamba
+    source ~/.bashrc
+    ```
+    Configuring Package and Environment Directories
+    Set up centralized and personal directories for environments and packages:
+    ```bash
+    micromamba config append envs_dirs /apps/mamba/1.5.8/micromamba/envs
+    micromamba config append pkgs_dirs /apps/mamba/1.5.8/micromamba/pkgs
+    micromamba config append pkgs_dirs ~/micromamba/pkgs
+    ```
+0. Viewing Available Environments
+    To list all available environments:
+    ```bash
+    micromamba env list
+    ```
+### 4.3 Create first environment via Micromamba
+1. Viewing Available Environments
+    To list all available environments:
+    ```bash
+    micromamba env list
+
+2. 2. Creating a new micromamba environment namely `myenv`. The `myenv` is included jupyter.:
+    ```bash
+    micromamba create -n myenv -c conda-forge jupyter
+    ```
+3. Activate `myenv` environment:
+    ```bash
+    micromamba activate myenv
+    ```
+
+4. Adding the Environment to Jupyter
+
+    Make the new environment available as a Jupyter kernel:
+
+    ```bash
+    ipython kernel install --name myenv --user
+    ```
+
+5. Submitting a Jupyter Lab Job
+
+    1. Open the [OnDemand portal](http://raptor.med.cmu.ac.th:9000).
+    2. Click "Interactive Apps" on the menu bar and select "Jupyter Lab".
+    3. Once Jupyter Lab starts, select the myenv `kernel` when creating or opening a notebook.
+
+6. Verifying Your Python Version in Jupyter
+
+    Run the following code in a Jupyter Lab cell to confirm the Python version:
+
+    ```python
+    import sys
+    print(sys.version)
+    ```
+
+You should see the Python version associated with your `myenv` environment.
+
+
+
+### 4.4 Using Apptainer Containers
+
+**Apptainer** (formerly Singularity) is a container platform designed for high-performance computing (HPC) environments. It allows users to package applications and their dependencies into portable containers. Below is a guide to using Apptainer, including GPU support and integration with SLURM.
+
+#### Collection of SIF Files
+
+The central collection of SIF (Singularity Image Format) files is stored in `/common/sif/`. You can access a variety of pre-built container images for different applications in the following subdirectories:
+
+You can list all available SIF files using:
+```bash
+ls /common/sif/*/*.sif
+```
+*Here are some examples of available containers*:
+- **AlphaFold 2**: /common/sif/alphafold2/2.0.0.sif
+- **AlphaFold 2 Multimer**: /common/sif/alphafold2-multimer/1.0.0.sif
+- **AutoDock GPU**: /common/sif/autodock-gpu/2020.06.sif
+- **Clara Parabricks**: /common/sif/clara-parabricks/4.3.2.sif, /common/sif/clara-parabricks/4.4.0.sif
+- **DiffDock**: /common/sif/diffdock/2.0.0.sif
+- **GROMACS**: /common/sif/gromacs/2023.2.sif
+- **MOLMIN**: /common/sif/molmin/1.0.0.sif
+- **MONAI**: /common/sif/monai/1.4.0.sif
+- **TensorFlow**: /common/sif/tensorflow/24.10-tf2-py3.sif
+
+
+#### Common Apptainer Commands
+
+- **Pull an image from Docker Hub**:  
+  Download lolcow container images from docker hub 
+  ```bash
+  module load apptainer
+  
+  apptainer pull lolcow.sif docker://ghcr.io/apptainer/lolcow
+  ```
+- **Run a container interactively**:
+  Start an interactive session inside the container.
+  ```bash
+  apptainer shell lolcow.sif
+  ```
+- **Execute a command in a container**:
+  Execute the cowsay program within the `lolcow_latest.sif` container via apptainer runtime
+  ```bash
+  apptainer exec lolcow.sif cowsay moo
+  ```
+- **Run a container with GPU support**:
+  Enable GPU acceleration by using the --nv option.
+  ```bash
+  apptainer exec --nv image_name.sif command
+  ```
+### 4.5 How to Submit Jobs Using SLURM Interactive Mode
+SLURM can be used to manage and schedule container-based jobs in HPC environments. Below are examples of integrating Apptainer containers with SLURM.
+
+Execute a command in a container
+```bash
+module load apptainer
+
+srun -p short -t 1:00:00 -c 1 --mem=4G --pty \
+  apptainer exec /common/demo/lolcow.sif bash
+```
+```bash
+Apptainer> cowsay mooooo
+Apptainer> exit
+```
+Execute a command in a container with GPU
+```bash
+srun -p gpu -t 1:00:00 -c 1 --mem=4G -G 1 --pty \
+  apptainer exec --nv /common/sif/clara-parabricks/4.4.0.sif \
+  pbrun fq2bam --help
+```
+
+### 4.6 Submitting a Job with Apptainer
+To run a containerized application as a SLURM job, use an sbatch script:
+
+Example SLURM Script:
+```bash title="run_container.sh"
+#!/bin/bash
+
+#SBATCH --job-name=apptainer_job      # Job name
+#SBATCH --partition=gpu               # Partition with GPU
+#SBATCH --gpus=1                      # Request 1 GPU
+#SBATCH --time=02:00:00               # Time limit (hh:mm:ss)
+#SBATCH --cpus-per-task=4             # Number of CPU cores
+#SBATCH --mem=16G                     # Memory allocation
+#SBATCH --output=output_%j.log        # Standard output file
+#SBATCH --error=error_%j.log          # Error output file
+
+module load apptainer                  # Load Apptainer module
+
+apptainer exec --nv image_name.sif command args
+```
+
+
+## 5. Data Transfer Guide
+```
+rsync –avz <source> <target> 
+```
+
+Example move `/path/from/erawan` directory from Erawan to RAPTOR using rsync in RAPTOR
+![Data Transfer](/img/workshop/transfer.png)
+```
+rsync –avz username@erawan.cmu.ac.th:/path/from/erawan /move/to/path 
+```

@@ -1,0 +1,227 @@
+---
+title: Building Your First Apptainer Container
+sidebar_label: "Build Apptainer Container"
+description: A beginner's guide to creating Apptainer container images using definition files.
+sidebar_position: 10
+toc_min_heading_level: 2
+toc_max_heading_level: 5
+---
+
+Welcome to the world of Apptainer! If you're new to containers, think of them as self-contained boxes for your software. Everything the software needs to run—code, libraries, and tools—is packed inside. This means your software will run the same way everywhere, every time.
+
+In this guide, we'll walk through creating your first container images using a **Definition File**.
+
+### What is a Definition File?
+
+A definition file (we'll call it a `.def` file) is like a **recipe** or a **blueprint** for building your container. You write down a list of instructions, and Apptainer follows them to build a perfect, repeatable container image (a `.sif` file).
+
+Let's look at the basic sections of a definition file:
+
+*   `Bootstrap` & `From`: The starting point. This is usually a minimal operating system, like Ubuntu, from a source like Docker Hub.
+*   `%files`: Copies files from your computer (the "host") into the container during the build process.
+*   `%post`: Commands that run *inside* the container to install software and set things up. This is where you'll use commands like `apt-get install`.
+*   `%environment`: Sets up environment variables. Think of these as shortcuts or settings for your container.
+*   `%test`: A set of commands to verify that the build was successful.
+*   `%runscript`: The **default command** that executes when you run the container with `apptainer run`.
+
+---
+
+## Example 1: Copying Data into a Container
+
+Our first goal is simple: create a container that holds a specific data file from our computer.
+
+### Step 1: The Recipe (`app2.def`)
+
+First, create a file named `app2.def` and add the following content. This recipe tells Apptainer to start with Ubuntu, copy a file inside, and set up a default action.
+
+:::caution Before you start
+The `%files` section below uses a file path: `/project/demo/qiime2/MS250109-0181/Con1-LGM27087_L1_1.fq.gz`.
+
+**You must change this to a path that points to a real file on your own computer!** For example, you could use a simple text file you create at `/home/user/my-test-file.txt`.
+:::
+
+```bash title="app2.def"
+// Start with a basic Ubuntu 22.04 image from Docker Hub
+Bootstrap: docker
+From: ubuntu:22.04
+
+// This section copies files from your computer INTO the container
+%files
+    // Syntax: <source_on_your_computer> <destination_inside_container>
+    // Make sure this source file exists on your computer!
+    /project/demo/qiime2/MS250109-0181/Con1-LGM27087_L1_1.fq.gz
+
+// This section runs commands to set up the container
+%post
+    # Update the OS and clean up
+    apt-get update -y
+    apt-get clean
+    rm -rf /var/lib/apt/lists/*
+
+    # Create a new directory inside the container called /data
+    mkdir -p /data
+    # Copy the file (which is now at the root) into the /data directory
+    cp /Con1-LGM27087_L1_1.fq.gz /data/
+
+// Set environment variables
+%environment
+    export LC_ALL=C.UTF-8
+    export LANG=C.UTF-8
+
+// Commands to run to test if the build worked
+%test
+    # Check if our file is in the /data directory
+    ls -l /data
+
+// The default command to run when using 'apptainer run'
+%runscript
+    echo "Display first 8 lines of Con1-LGM27087_L1_1.fq.gz"
+    zcat /data/Con1-LGM27087_L1_1.fq.gz | head -n 8
+```
+
+### Step 2: Build the Container
+Now, let's use our app2.def recipe to build the container image. The final image will be a single file named app2.sif.
+
+Run this command in your terminal:
+
+```Generated bash
+# apptainer build <output-name.sif> <recipe-file.def>
+apptainer build app2.sif app2.def
+```
+Apptainer will follow your recipe, and after a few moments, you'll have a new app2.sif file in your directory.
+
+### Step 3: Run and Test the Container
+Let's run our container. This command will execute the %runscript section of our recipe.
+
+```bash
+apptainer run app2.sif
+```
+You should see output like this, showing the first 8 lines of your file:
+
+```text
+Display first 8 lines of Con1-LGM27087_L1_1.fq.gz
+@MS250109-0181:1:1101:21501:1099 1:N:0:NAGAGAGG+NCTCCTGT
+CTACGGGGTCTAGCGCTAGTTGGCGAGCAACGCGAAGTCACCAGTCGCTAGCTGTAACGATTCGAGGCTGCCTTCGCCCTCGATGTCGCTCCACGCTTTCGTCCATCAGCGTCAGTAAGCTATACATATG
++
+A-AAFJJJJJJJJJJJJJJJJJJJJJJJJFJJJJFJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJFJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJFFF
+@MS250109-0181:1:1101:2543:1101 1:N:0:NAGAGAGG+NCTCCTGT
+GTAGGGGGTCTAGCGCTAGTTCGCGAGCAACGCGAAGTCATCAGTCGCTAGCTGTAACGATTCGAGGCTGCCTTCGCCCTCGATGTCGCTCCACGCTTTCGTCCATCAGCGTCAGTAAGCTATACATATG
++
+AAAAFJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ
+```
+To explore the container interactively, use apptainer shell. This is like opening a door into the container to look around.
+
+```bash
+apptainer shell app2.sif
+```
+You'll get a new command prompt. Try listing the files in the /data directory:
+
+```bash
+Apptainer> ls /data
+Con1-LGM27087_L1_1.fq.gz
+Apptainer> exit
+```
+Success! You've built your first container.
+
+
+
+## Example 2: A Real-World FastQC Container
+Now for a more practical example. Let's build a container that has the bioinformatics tool FastQC installed. This way, we can run FastQC anywhere without worrying about installing Java or other dependencies.
+
+### Step 1: The Recipe (`fastqc.def`)
+Create a file named fastqc.def. This recipe is more complex: it installs software from the internet using apt-get and wget.
+
+```bash title="fastqc.def"
+Bootstrap: docker
+From: ubuntu:22.04
+
+%post
+    # Tell Ubuntu we won't be providing any interactive input (e.g., "yes/no")
+    export DEBIAN_FRONTEND=noninteractive
+
+    # Update package lists and install dependencies for FastQC
+    apt-get update -y
+    apt-get install -y --no-install-recommends \
+        default-jre \
+        wget \
+        unzip \
+        perl
+    # Clean up to keep the container small
+    apt-get clean
+    rm -rf /var/lib/apt/lists/*
+
+    # Download and install FastQC
+    FASTQC_VERSION="0.12.1"
+    FASTQC_URL="https://www.bioinformatics.babraham.ac.uk/projects/fastqc/fastqc_v${FASTQC_VERSION}.zip"
+    echo "Downloading FastQC v${FASTQC_VERSION}..."
+    wget -O /tmp/fastqc.zip "${FASTQC_URL}"
+    unzip /tmp/fastqc.zip -d /opt/
+    rm /tmp/fastqc.zip
+
+    # Make the fastqc script executable
+    chmod +x /opt/FastQC/fastqc
+    echo "FastQC installation complete."
+
+%environment
+    # Add the FastQC directory to the system's PATH
+    # This lets us run 'fastqc' from anywhere inside the container
+    export PATH="/opt/FastQC:${PATH}"
+    export LC_ALL=C.UTF-8
+    export LANG=C.UTF-8
+
+%test
+    # A simple test to check if FastQC runs and shows its help menu
+    echo "Testing FastQC installation..."
+    fastqc --help
+
+%runscript
+    echo "Running FastQC from inside the Apptainer container."
+    # "$@" is a special variable that means "pass along any arguments"
+    # that were given to 'apptainer run'
+    fastqc "$@"
+```
+
+
+:::tip What is "$@"?
+The "$@" in the %runscript is very powerful. It allows you to pass arguments from your apptainer run command directly to the fastqc command inside the container. This makes your container flexible and reusable!
+:::
+
+### Step 2: Build the Container
+Just like before, build the .sif file from the definition file.
+
+```bash
+apptainer build fastqc.sif fastqc.def
+```
+
+### Step 3: Use the FastQC Container
+Now we can use our container to analyze a FASTQ file.
+
+Method 1: Using apptainer run
+This method uses the %runscript we defined. We pass the path to our data file as an argument, and "$@" forwards it to the fastqc command.
+
+```bash
+# This tells the container to run FastQC on a file located on our computer.
+# Apptainer automatically makes your home and project directories visible inside the container.
+apptainer run fastqc.sif /project/demo/qiime2/MS250109-0181/PSRW2-LGM27093_L1_1.fq.gz
+```
+
+FastQC will run and create its report files in your current directory.
+
+Method 2: Using apptainer exec
+What if you want to run a command other than the default runscript? Use apptainer exec. This lets you execute any command available inside the container.
+
+For example, let's just view the FastQC help menu:
+
+```bash
+# apptainer exec <container.sif> <command-to-run>
+apptainer exec fastqc.sif fastqc -h
+```
+This is extremely useful for running tools that have many different sub-commands.
+
+Key Commands at a Glance
+| Command | Purpose | Analogy |
+|---|---|---|
+| `apptainer build` | Creates a container image (`.sif`) from a recipe (`.def`). | 🛠️ Baking a cake from a recipe. |
+| `apptainer run` | Executes the default `%runscript` inside the container. | ▶️ Pressing the "Start" button on an appliance. |
+| `apptainer exec` | Executes a *specific command* of your choice inside the container. | 🚀 Manually operating a tool for a specific task. |
+| `apptainer shell` | Opens an interactive shell inside the container for exploring. | 💻 Opening the box to look inside. |
