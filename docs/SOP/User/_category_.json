@@ -1,0 +1,8 @@
+{
+  "label": "User SOPs",
+  "position": 2,
+  "link": {
+    "type": "generated-index",
+    "description": "Standard Operating Procedures for HPC end users - account setup, project registration, resource requests, and troubleshooting."
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "label": "SOP",
+  "position": 4,
+  "link": {
+    "type": "generated-index",
+    "description": "Standard Operating Procedures for MedCMU-HPC users and administrators."
+  }
+}

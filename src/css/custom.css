@@ -28,3 +28,59 @@
   --ifm-color-primary-lightest: #4fddbf;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
+
+/* Print styles for PDF export */
+@media print {
+  /* Hide navigation and UI elements */
+  .navbar,
+  .sidebar,
+  .theme-doc-sidebar-container,
+  .pagination-nav,
+  .theme-doc-toc-desktop,
+  .theme-doc-footer,
+  footer,
+  .table-of-contents {
+    display: none !important;
+  }
+
+  /* Hide the export button when printing */
+  button[title="Export to PDF"] {
+    display: none !important;
+  }
+
+  /* Full width content */
+  .main-wrapper {
+    padding: 0 !important;
+  }
+
+  main {
+    max-width: 100% !important;
+    padding: 20px !important;
+  }
+
+  article {
+    max-width: 100% !important;
+  }
+
+  /* Ensure code blocks don't break awkwardly */
+  pre {
+    white-space: pre-wrap !important;
+    word-wrap: break-word !important;
+  }
+
+  /* Page break controls */
+  h2, h3 {
+    page-break-after: avoid;
+  }
+
+  table, pre, blockquote {
+    page-break-inside: avoid;
+  }
+
+  /* Ensure colors print */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+

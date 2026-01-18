@@ -3,6 +3,10 @@
 
 # Production
 /build
+build.zip
+
+# Exported files from Notion
+/ExportBlock-FromNotion
 
 # Generated files
 .docusaurus

@@ -1,0 +1,183 @@
+.sopHeader {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+}
+
+/* Header Top Section */
+.headerTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.headerLeft {
+  flex: 1;
+}
+
+.headerRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+/* Document Code Badge */
+.documentCode {
+  display: inline-block;
+  background-color: var(--ifm-color-emphasis-200);
+  color: var(--ifm-color-emphasis-700);
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-family: var(--ifm-font-family-monospace);
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+  letter-spacing: 0.5px;
+}
+
+[data-theme="dark"] .documentCode {
+  background-color: var(--ifm-color-emphasis-300);
+  color: var(--ifm-color-emphasis-900);
+}
+
+/* Title */
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--ifm-heading-color);
+  line-height: 1.3;
+}
+
+/* Version */
+.version {
+  font-size: 1.5rem;
+  font-weight: 300;
+  color: var(--ifm-color-emphasis-600);
+}
+
+/* Version and Status wrapper */
+.versionStatus {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+/* Export Button */
+.exportButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #4a4a4a;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-top: 0.5rem;
+}
+
+.exportButton:hover {
+  background-color: #333;
+}
+
+.exportButton svg {
+  flex-shrink: 0;
+}
+
+[data-theme='dark'] .exportButton {
+  background-color: var(--ifm-color-emphasis-300);
+  color: var(--ifm-color-emphasis-900);
+}
+
+[data-theme='dark'] .exportButton:hover {
+  background-color: var(--ifm-color-emphasis-400);
+}
+
+/* Status Badge */
+.status {
+  display: inline-block;
+  padding: 0.35rem 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.statusApproved {
+  background-color: #2e7d32;
+  color: white;
+}
+
+.statusDraft {
+  background-color: #ed6c02;
+  color: white;
+}
+
+.statusReview {
+  background-color: #0288d1;
+  color: white;
+}
+
+.statusArchived {
+  background-color: #757575;
+  color: white;
+}
+
+/* Metadata Bar */
+.metadataBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--ifm-color-emphasis-200);
+}
+
+.metadataItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 120px;
+}
+
+.metadataLabel {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--ifm-color-emphasis-500);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.metadataValue {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--ifm-font-color-base);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .headerTop {
+    flex-direction: column;
+  }
+
+  .headerRight {
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+  }
+
+  .metadataBar {
+    gap: 1.5rem;
+  }
+
+  .metadataItem {
+    min-width: 100px;
+  }
+}

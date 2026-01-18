@@ -1,0 +1,8 @@
+{
+  "label": "Admin SOPs",
+  "position": 3,
+  "link": {
+    "type": "generated-index",
+    "description": "Standard Operating Procedures for HPC administrators and support staff - user management, system maintenance, and incident response."
+  }
+}
