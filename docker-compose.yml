@@ -6,7 +6,7 @@ services:
     image: medcmu-hpc-docs:latest
     container_name: hpc-docs
     ports:
-      - "80:80"
+      - "8080:80"
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
