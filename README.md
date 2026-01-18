@@ -1,6 +1,6 @@
 # MedCMU HPC Documentation
 
-Welcome to the official repository for the **MedCMU HPC Documentation**. This platform provides detailed guides, tutorials, and reference material for users of the **High-Performance Computing (HPC)** infrastructure at the **Faculty of Medicine, Chiang Mai University (MedCMU)**. 
+Welcome to the official repository for the **MedCMU HPC Documentation**. This platform provides detailed guides, tutorials, and reference material for users of the **High-Performance Computing (HPC)** infrastructure at the **Faculty of Medicine, Chiang Mai University (MedCMU)**.
 
 This documentation site is built using **Docusaurus**, a modern static website generator optimized for project documentation.
 
@@ -35,6 +35,7 @@ To contribute or run the MedCMU HPC documentation locally, follow these steps:
 ### Installation Steps
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/evolu-tion/medcmu-hpc.git
    cd medcmu-hpc
@@ -51,8 +52,37 @@ To contribute or run the MedCMU HPC documentation locally, follow these steps:
 4. Open your browser and visit `http://localhost:3000` to view the documentation.
 
 ### Build the Site
+
+### Build the Site
+
 To build a static version of the site for deployment, run:
+
 ```bash
 npm run build
 ```
 
+## Running with Docker
+
+You can also run the documentation locally using Docker Compose. This helps verify the production build in a containerized environment.
+
+1. Build and start the container:
+
+   > **Note:** Use the `--build` flag to ensure any changes are included in the image.
+
+   ```bash
+   docker compose up -d --build
+   ```
+
+2. Access the site at `http://localhost:8080`.
+
+3. To stop the container:
+   ```bash
+   docker compose down
+   ```
+
+## LLM Context
+
+This project includes an `/llms.txt` file to help Large Language Models (LLMs) understand the documentation structure.
+
+- **URL:** `https://medcmu-hpc.netlify.app/llms.txt` (or `/llms.txt` locally)
+- **Usage:** Provide this URL to an LLM to give it context about the available documentation and SOPs.
