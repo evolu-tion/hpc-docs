@@ -32,25 +32,18 @@ jobs:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
 
-  # Deploy using self-hosted runner
+  # Deploy using self-hosted runner with Docker Compose
   deploy-self-hosted:
     runs-on: self-hosted
 
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: "22"
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build Docusaurus site
-        run: npm run build
-
-      - name: Deploy
+      - name: Build and Deploy with Docker Compose
         run: |
-          echo "Deploying on self-hosted runner..."
-          # Add your self-hosted deployment commands here
+          docker compose down
+          docker compose build --no-cache
+          docker compose up -d
+
+      - name: Clean up old images
+        run: docker image prune -f
